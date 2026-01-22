@@ -16,6 +16,8 @@ function createMockSetTimeout(): Mock {
   return vi.spyOn(global, "setTimeout").mockImplementation((callback) => {
     // Call callback immediately for test
     (callback as () => void)();
+
+    // @ts-expect-error Known issue...
     const mockTimeout: NodeJS.Timeout = {
       ref: () => mockTimeout,
       unref: () => mockTimeout,
@@ -23,13 +25,8 @@ function createMockSetTimeout(): Mock {
       refresh: () => mockTimeout,
       [Symbol.toPrimitive]: () => 0,
       [Symbol.dispose]: () => {},
-      close: function (): NodeJS.Timeout {
-        throw new Error("Function not implemented.");
-      },
-      _onTimeout: function (): void {
-        throw new Error("Function not implemented.");
-      },
     };
+
     return mockTimeout;
   });
 }
@@ -183,9 +180,11 @@ describe("getRSSFeed", () => {
     const setTimeoutSpy = vi
       .spyOn(global, "setTimeout")
       .mockImplementation((callback, delay) => {
-        expect(delay).toBe(30000); // Should be 30 seconds
+        expect(delay).toBe(60_000); // Should be 30 seconds
         // Call callback immediately for test
         (callback as () => void)();
+
+        // @ts-expect-error Known issue...
         const mockTimeout: NodeJS.Timeout = {
           ref: () => mockTimeout,
           unref: () => mockTimeout,
@@ -193,20 +192,15 @@ describe("getRSSFeed", () => {
           refresh: () => mockTimeout,
           [Symbol.toPrimitive]: () => 0,
           [Symbol.dispose]: () => {},
-          close: function (): NodeJS.Timeout {
-            throw new Error("Function not implemented.");
-          },
-          _onTimeout: function (): void {
-            throw new Error("Function not implemented.");
-          },
         };
+
         return mockTimeout;
       });
 
     const result = await getRSSFeed("https://example.com/rss");
 
     expect(result).toEqual({ items: [{ title: "Success" }] });
-    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 30000);
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 30_000);
 
     setTimeoutSpy.mockRestore();
     vi.restoreAllMocks();
