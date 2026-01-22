@@ -24,7 +24,7 @@ const feeds: string[] = [
   "marketing",
   "crypto",
   "fintech",
-  "it",
+  // "it",
   "data",
   // "hardware",
 ];

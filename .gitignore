@@ -12,3 +12,5 @@
 .idea
 
 static/*.rss
+static/*.html
+!static/index.html
