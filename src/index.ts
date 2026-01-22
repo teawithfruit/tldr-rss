@@ -14,12 +14,19 @@ const MAX_DAYS = parseInt(process.env.MAX_DAYS || "10", 10);
 // Add rss feed to create a new one
 const feeds: string[] = [
   "tech",
+  "dev",
   "ai",
-  "crypto",
+  "infosec",
+  "product",
+  "devops",
   "founders",
   "design",
-  "devops",
+  "marketing",
+  "crypto",
+  "fintech",
+  "it",
   "data",
+  // "hardware",
 ];
 
 type NewsWithDate = News & { date: string };

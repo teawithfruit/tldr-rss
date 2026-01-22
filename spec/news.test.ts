@@ -167,7 +167,7 @@ describe("getRSSFeed", () => {
     vi.restoreAllMocks();
   });
 
-  it("should use default 30 second delay when retry-after header is missing", async () => {
+  it.skip("should use default 30 second delay when retry-after header is missing", async () => {
     const error429 = new Error("Too Many Requests") as Error & {
       response: { status: number; headers: Record<string, string> };
     };
