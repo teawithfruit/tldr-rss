@@ -1,6 +1,6 @@
 name: Continuous testing
 
-on: 
+on:
   pull_request:
   push:
     branches: ["main"]
@@ -14,24 +14,24 @@ jobs:
     name: running ${{ matrix.command }}
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v6
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
         with:
-          node-version: 24
+          node-version-file: ".nvmrc"
+          package-manager-cache: false
 
-      - name: Cache node modules
-        id: cache-npm
-        uses: actions/cache@v5
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-build-${{ env.cache-name }}-
+      - name: Determine pnpm store path
+        id: pnpm-store
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
+      - run: pnpm install
 
       - run: yarn run ${{ matrix.command }}
 
@@ -39,6 +39,6 @@ jobs:
     runs-on: ubuntu-latest
     name: All tests passed
     needs: [test]
-    
+
     steps:
       - run: echo '### Good job! All the tests passed 🚀' >> $GITHUB_STEP_SUMMARY
