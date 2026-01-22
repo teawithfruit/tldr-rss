@@ -113,7 +113,7 @@ function escapeHtml(text: string): string {
     "'": "&#039;",
   };
 
-  // @ts-ignore
+  // @ts-expect-error
   return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 
