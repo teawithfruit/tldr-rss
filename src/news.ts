@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
 import axios from "axios";
 import { JSDOM } from "jsdom";
 import Parser from "rss-parser";
 
-import { News } from "./types";
-import { logger } from "./util";
+import { type News } from "./types.js";
+import { logger } from "./util.js";
 
 export const getRSSFeed = async (
   feed: string,

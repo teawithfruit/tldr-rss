@@ -1,7 +1,7 @@
 import { writeFile } from "fs/promises";
 import xml from "xml";
 
-import { logger } from "./util";
+import { logger } from "./util.js";
 
 type Post = { title: string; date: string; content: string; link: string };
 
@@ -90,5 +90,5 @@ export const writeRssFeed = async (
 
   const feed = '<?xml version="1.0" encoding="UTF-8"?>' + xml(feedObject);
 
-  await writeFile(`./site/${feedName}.rss`, feed, "utf8");
+  await writeFile(`./static/${feedName}.rss`, feed, "utf8");
 };

@@ -1,10 +1,10 @@
 import { setFailed, summary } from "@actions/core";
 
-import { writeHtmlFeed } from "./html";
-import { fetchNews, getRSSFeed } from "./news";
-import { writeRssFeed } from "./rss";
-import { News } from "./types";
-import { logger } from "./util";
+import { writeHtmlFeed } from "./html.js";
+import { fetchNews, getRSSFeed } from "./news.js";
+import { writeRssFeed } from "./rss.js";
+import { type News } from "./types.js";
+import { logger } from "./util.js";
 
 const RSS_BASE_URL = "https://tldr.tech/api/rss";
 
@@ -86,6 +86,7 @@ const summarizeNews = async (news: NewsWithDate[]): Promise<void> => {
       ...feeds.map((feed) => [`<a href=${feed}>${feed}</a>`]),
     ])
     .addEOL();
+
   for (const { title, content, date, link } of news) {
     text = text
       .addHeading(`<a href=${link}>${title}</a>`, 3)

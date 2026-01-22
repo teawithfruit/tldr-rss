@@ -1,10 +1,19 @@
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type Mock,
+} from "vitest";
 import Parser from "rss-parser";
 
-import { fetchNews, getRSSFeed } from "../news";
+import { fetchNews, getRSSFeed } from "../src/news.js";
 
 // Helper function to create a setTimeout mock that executes immediately
-function createMockSetTimeout(): jest.SpyInstance {
-  return jest.spyOn(global, "setTimeout").mockImplementation((callback) => {
+function createMockSetTimeout(): Mock {
+  return vi.spyOn(global, "setTimeout").mockImplementation((callback) => {
     // Call callback immediately for test
     (callback as () => void)();
     const mockTimeout: NodeJS.Timeout = {
@@ -14,6 +23,12 @@ function createMockSetTimeout(): jest.SpyInstance {
       refresh: () => mockTimeout,
       [Symbol.toPrimitive]: () => 0,
       [Symbol.dispose]: () => {},
+      close: function (): NodeJS.Timeout {
+        throw new Error("Function not implemented.");
+      },
+      _onTimeout: function (): void {
+        throw new Error("Function not implemented.");
+      },
     };
     return mockTimeout;
   });
@@ -36,32 +51,32 @@ describe("fetchNews", () => {
 });
 
 describe("getRSSFeed", () => {
-  let logSpy: jest.SpyInstance;
+  let logSpy: Mock;
 
   beforeEach(() => {
-    logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+    logSpy = vi.spyOn(console, "log").mockImplementation(() => {});
   });
 
   afterEach(() => {
     logSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should handle successful RSS feed parsing", async () => {
     // Mock parser to simulate successful parsing
     const mockParser = {
-      parseURL: jest.fn().mockResolvedValue({ items: [{ title: "Test" }] }),
+      parseURL: vi.fn().mockResolvedValue({ items: [{ title: "Test" }] }),
     };
-    jest
-      .spyOn(Parser.prototype, "parseURL")
-      .mockImplementation(mockParser.parseURL);
+    vi.spyOn(Parser.prototype, "parseURL").mockImplementation(
+      mockParser.parseURL,
+    );
 
     const result = await getRSSFeed("https://example.com/rss");
 
     expect(result).toEqual({ items: [{ title: "Test" }] });
     expect(mockParser.parseURL).toHaveBeenCalledWith("https://example.com/rss");
 
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should retry on 429 errors up to 7 times total", async () => {
@@ -73,7 +88,7 @@ describe("getRSSFeed", () => {
       headers: { "retry-after": "1" },
     };
 
-    const mockParser = jest
+    const mockParser = vi
       .spyOn(Parser.prototype, "parseURL")
       .mockRejectedValueOnce(error429)
       .mockRejectedValueOnce(error429)
@@ -88,7 +103,7 @@ describe("getRSSFeed", () => {
     expect(result).toEqual({ items: [{ title: "Success after retries" }] });
     expect(mockParser).toHaveBeenCalledTimes(7);
 
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   }, 10000); // 10 second timeout for this test
 
   it("should fail after 7 attempts for 429 errors", async () => {
@@ -100,7 +115,7 @@ describe("getRSSFeed", () => {
       headers: { "retry-after": "1" },
     };
 
-    const mockParser = jest
+    const mockParser = vi
       .spyOn(Parser.prototype, "parseURL")
       .mockRejectedValue(error429);
 
@@ -109,7 +124,7 @@ describe("getRSSFeed", () => {
     );
     expect(mockParser).toHaveBeenCalledTimes(7);
 
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   }, 10000); // 10 second timeout for this test
 
   it("should succeed after failing 4 times and succeeding on 5th attempt", async () => {
@@ -121,7 +136,7 @@ describe("getRSSFeed", () => {
       headers: { "retry-after": "1" },
     };
 
-    const mockParser = jest
+    const mockParser = vi
       .spyOn(Parser.prototype, "parseURL")
       .mockRejectedValueOnce(error429)
       .mockRejectedValueOnce(error429)
@@ -134,7 +149,7 @@ describe("getRSSFeed", () => {
     expect(result).toEqual({ items: [{ title: "Success on 5th try" }] });
     expect(mockParser).toHaveBeenCalledTimes(5);
 
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   }, 10000); // 10 second timeout for this test
 
   it("should not retry on non-429 errors", async () => {
@@ -143,7 +158,7 @@ describe("getRSSFeed", () => {
     };
     error404.response = { status: 404 };
 
-    const mockParser = jest
+    const mockParser = vi
       .spyOn(Parser.prototype, "parseURL")
       .mockRejectedValue(error404);
 
@@ -152,7 +167,7 @@ describe("getRSSFeed", () => {
     );
     expect(mockParser).toHaveBeenCalledTimes(1);
 
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should use default 30 second delay when retry-after header is missing", async () => {
@@ -165,7 +180,7 @@ describe("getRSSFeed", () => {
     };
 
     // Mock Date.now and setTimeout to test delay
-    const setTimeoutSpy = jest
+    const setTimeoutSpy = vi
       .spyOn(global, "setTimeout")
       .mockImplementation((callback, delay) => {
         expect(delay).toBe(30000); // Should be 30 seconds
@@ -178,14 +193,15 @@ describe("getRSSFeed", () => {
           refresh: () => mockTimeout,
           [Symbol.toPrimitive]: () => 0,
           [Symbol.dispose]: () => {},
+          close: function (): NodeJS.Timeout {
+            throw new Error("Function not implemented.");
+          },
+          _onTimeout: function (): void {
+            throw new Error("Function not implemented.");
+          },
         };
         return mockTimeout;
       });
-
-    const _mockParser = jest
-      .spyOn(Parser.prototype, "parseURL")
-      .mockRejectedValueOnce(error429)
-      .mockResolvedValueOnce({ items: [{ title: "Success" }] });
 
     const result = await getRSSFeed("https://example.com/rss");
 
@@ -193,7 +209,7 @@ describe("getRSSFeed", () => {
     expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 30000);
 
     setTimeoutSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should retry on 429 errors with message only (no response object)", async () => {
@@ -202,7 +218,7 @@ describe("getRSSFeed", () => {
 
     const setTimeoutSpy = createMockSetTimeout();
 
-    const mockParser = jest
+    const mockParser = vi
       .spyOn(Parser.prototype, "parseURL")
       .mockRejectedValueOnce(error429)
       .mockRejectedValueOnce(error429)
@@ -214,7 +230,7 @@ describe("getRSSFeed", () => {
     expect(mockParser).toHaveBeenCalledTimes(3);
 
     setTimeoutSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it("should fail after 7 attempts for 429 errors with message only", async () => {
@@ -223,7 +239,7 @@ describe("getRSSFeed", () => {
 
     const setTimeoutSpy = createMockSetTimeout();
 
-    const mockParser = jest
+    const mockParser = vi
       .spyOn(Parser.prototype, "parseURL")
       .mockRejectedValue(error429);
 
@@ -233,6 +249,6 @@ describe("getRSSFeed", () => {
     expect(mockParser).toHaveBeenCalledTimes(7);
 
     setTimeoutSpy.mockRestore();
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 });

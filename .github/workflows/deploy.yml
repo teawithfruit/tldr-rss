@@ -5,7 +5,7 @@ on:
     branches: ["main"]
   workflow_dispatch:
   schedule:
-    - cron:  '0 12 * * *'
+    - cron: "0 12 * * *"
 
 permissions:
   contents: read
@@ -16,42 +16,63 @@ jobs:
   build-feed:
     runs-on: ubuntu-latest
     name: Generate RSS
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install node
-        uses: actions/setup-node@v4
+        uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v6
         with:
-          node-version: 20
-      - run: yarn install --frozen-lockfile
-      - run: yarn run build
-      - run: yarn start
+          node-version-file: ".nvmrc"
+          package-manager-cache: false
+
+      - name: Determine pnpm store path
+        id: pnpm-store
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - run: pnpm install
+
+      - run: pnpm run build
+
+      - run: pnpm run start
         env:
           MAX_DAYS: 10
-      - uses: actions/upload-artifact@v4
+
+      - uses: actions/upload-artifact@v6
         with:
           name: rss
-          path: ./site
+          path: ./static
           if-no-files-found: error
           retention-days: 2
+
   deploy-to-github-pages:
     runs-on: ubuntu-latest
     name: Deploy RSS
     needs: [build-feed]
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
       - name: Download page
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: rss
           path: ./dist
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

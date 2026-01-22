@@ -11,4 +11,4 @@
 !.vscode/settings.json
 .idea
 
-site/*.rss
+static/*.rss

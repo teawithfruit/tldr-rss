@@ -1,6 +1,7 @@
-import { readFile, unlink } from "fs/promises";
+import { readFile, unlink } from "node:fs/promises";
+import { afterEach, describe, expect, it } from "vitest";
 
-import { writeHtmlFeed } from "../html";
+import { writeHtmlFeed } from "../src/html.js";
 
 describe("HTML Feed Generation", () => {
   const testPosts = [
@@ -27,8 +28,8 @@ describe("HTML Feed Generation", () => {
   afterEach(async () => {
     // Clean up test files
     try {
-      await unlink("./site/test.html");
-    } catch (error) {
+      await unlink("./static/test.html");
+    } catch {
       // File might not exist, ignore error
     }
   });
@@ -36,7 +37,7 @@ describe("HTML Feed Generation", () => {
   it("should create an HTML file with articles", async () => {
     await writeHtmlFeed("test", testPosts);
 
-    const content = await readFile("./site/test.html", "utf8");
+    const content = await readFile("./static/test.html", "utf8");
 
     expect(content).toContain("<!DOCTYPE html>");
     expect(content).toContain('<html lang="en">');
@@ -46,7 +47,7 @@ describe("HTML Feed Generation", () => {
   it("should include all articles in the HTML", async () => {
     await writeHtmlFeed("test", testPosts);
 
-    const content = await readFile("./site/test.html", "utf8");
+    const content = await readFile("./static/test.html", "utf8");
 
     expect(content).toContain("Test Article 1");
     expect(content).toContain("Test Article 2");
@@ -58,7 +59,7 @@ describe("HTML Feed Generation", () => {
   it("should sort articles by date (most recent first)", async () => {
     await writeHtmlFeed("test", testPosts);
 
-    const content = await readFile("./site/test.html", "utf8");
+    const content = await readFile("./static/test.html", "utf8");
 
     // Article 2 (2024-01-16) should appear before Article 1 (2024-01-15)
     const article2Index = content.indexOf("Test Article 2");
@@ -72,7 +73,7 @@ describe("HTML Feed Generation", () => {
   it("should include ISO 8601 dates", async () => {
     await writeHtmlFeed("test", testPosts);
 
-    const content = await readFile("./site/test.html", "utf8");
+    const content = await readFile("./static/test.html", "utf8");
 
     expect(content).toContain("2024-01-15T10:00:00.000Z");
     expect(content).toContain("2024-01-16T10:00:00.000Z");
@@ -91,7 +92,7 @@ describe("HTML Feed Generation", () => {
 
     await writeHtmlFeed("test", manyPosts, 10);
 
-    const content = await readFile("./site/test.html", "utf8");
+    const content = await readFile("./static/test.html", "utf8");
 
     // Should contain first 10 articles
     expect(content).toContain("Article 0");
@@ -114,7 +115,7 @@ describe("HTML Feed Generation", () => {
 
     await writeHtmlFeed("test", postsWithHtml);
 
-    const content = await readFile("./site/test.html", "utf8");
+    const content = await readFile("./static/test.html", "utf8");
 
     // Should escape dangerous characters in content
     expect(content).not.toContain("<script>");
@@ -140,7 +141,7 @@ describe("HTML Feed Generation", () => {
 
     await writeHtmlFeed("test", postsWithSingleQuotes);
 
-    const content = await readFile("./site/test.html", "utf8");
+    const content = await readFile("./static/test.html", "utf8");
 
     // Single quotes should be escaped in href attributes
     expect(content).toContain(

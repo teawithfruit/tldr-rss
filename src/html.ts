@@ -1,6 +1,6 @@
-import { writeFile } from "fs/promises";
+import { writeFile } from "node:fs/promises";
 
-import { logger } from "./util";
+import { logger } from "./util.js";
 
 type Post = { title: string; date: string; content: string; link: string };
 
@@ -98,7 +98,7 @@ ${sortedPosts
 </body>
 </html>`;
 
-  await writeFile(`./site/${feedName}.html`, htmlContent, "utf8");
+  await writeFile(`./static/${feedName}.html`, htmlContent, "utf8");
 };
 
 /**
@@ -112,6 +112,8 @@ function escapeHtml(text: string): string {
     '"': "&quot;",
     "'": "&#039;",
   };
+
+  // @ts-ignore
   return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 

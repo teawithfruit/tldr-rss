@@ -1,3 +1,5 @@
+import { describe, expect, it } from "vitest";
+
 describe("Date filtering logic", () => {
   it("should filter RSS items correctly based on date range", () => {
     const MAX_DAYS = 7;
@@ -31,7 +33,7 @@ describe("Date filtering logic", () => {
     });
 
     expect(recentItems).toHaveLength(2);
-    expect(recentItems[0].link).toBe("https://example.com/1");
-    expect(recentItems[1].link).toBe("https://example.com/3");
+    expect(recentItems[0]?.link).toBe("https://example.com/1");
+    expect(recentItems[1]?.link).toBe("https://example.com/3");
   });
 });
