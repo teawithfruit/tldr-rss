@@ -70,11 +70,7 @@ const fetchFeeds = async (): Promise<NewsWithDate[]> => {
     }
 
     await writeRssFeed(feedName, feedNews);
-
-    // Generate HTML page for tech feed only
-    if (feedName === "tech") {
-      await writeHtmlFeed(feedName, feedNews);
-    }
+    await writeHtmlFeed(feedName, feedNews);
 
     dateWithNews.push(...feedNews);
   }
