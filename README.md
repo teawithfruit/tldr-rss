@@ -1,6 +1,6 @@
 # TLDR RSS
 
-[![Update RSS](https://github.com/Bullrich/tldr-rss/actions/workflows/deploy.yml/badge.svg)](https://github.com/Bullrich/tldr-rss/actions/workflows/deploy.yml)
+[![Update RSS](https://github.com/teawithfruit/tldr-rss/actions/workflows/deploy.yml/badge.svg)](https://github.com/teawithfruit/tldr-rss/actions/workflows/deploy.yml)
 
 Recollection of [TLDR](https://tldr.tech) feeds. Unified into a single RSS feed.
 

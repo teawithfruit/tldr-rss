@@ -1,6 +1,6 @@
 name: "tldr-rss"
 description: "Converts TLDR feed into a RSS with all the articles"
-author: Bullrich
+author: teawithfruit
 branding:
   icon: rss
   color: blue

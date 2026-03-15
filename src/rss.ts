@@ -59,7 +59,7 @@ export const writeRssFeed = async (
           {
             "atom:link": {
               _attr: {
-                href: `https://bullrich.dev/tldr-rss/${feedName}.rss`,
+                href: `https://teawithfruit.github.io/tldr-rss/${feedName}.rss`,
                 rel: "self",
                 type: "application/rss+xml",
               },
@@ -69,7 +69,7 @@ export const writeRssFeed = async (
             title: `TLDR ${feedName.toLocaleUpperCase()} Feed`,
           },
           {
-            link: "https://bullrich.dev/tldr-rss/",
+            link: "https://teawithfruit.github.io/tldr-rss/",
           },
           { description: "TLDR RSS Feed" },
           { language: "en-US" },
